@@ -129,6 +129,7 @@ def getCorsoById(id, idUser, ruolo):
 
         media = getMediaVoto(id, idUser)
         data['media'] = media
+        res['corso'] = data
 
         if ruolo == "CLIENTE":
             userCorso = getUserCorso(idUser, id)
