@@ -1,0 +1,21 @@
+
+{% extends "base.html" %}
+{% block title %} Home {% endblock %}
+
+{%block mainbody %}
+<div >
+    <div class="index-cantainer">
+        <h4> Stato di tuo abbonamento</h4>
+        {% if abbonamento.attivo %}
+        <p>Puoi disattivare il tuo abbonamento e Sara automaticamente attivo dopo 30 giorni </p>
+         <form method="POST" action="/abbonamento">
+            <button class="form-login-btn" type="submit">Desattiva</button>
+        </form>
+        {% else %}
+        <p>Il tuo abbonamento è disattivato in data : {{ abbonamento.desattivatedDate }} </p>
+        <p>Sara automaticamente attivato dopo 30 giorni </p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+
+    <script>
+        function displayadd () {
+            const node = document.getElementById('creacorso');
+            if(node.style.visibility == "hidden"){
+                node.style.visibility = "visible"
+            } else{
+                node.style.visibility = "hidden"
+            }
+        }
+    </script>
+
+    <button>CORSI</button>
+    <button>VEDERE USER SANZA ABONAMENTI</button>
+    <button>VEDERE PRENOTAZIONE AD UN CORSE</button>
+
+    <h3>Lista dei corsi</h3>
+
+    <button onclick="displayadd()">AGGIUNGERE UN NUOVO CORSO</button>
+
+    <div>
+        <form id="creacorso" style="visibility: visible;" method="POST" action="{{url_for('corsi')}}">
+            <input type="email" />
+            <input type="password" />
+            <button type="submit">Crea corso</button>
+        </form>
+        <div>
+            <ul>
+            {% for corso in listacorsi %}
+              <li>
+                    <a href="{{url_for('personaleCorsoById', id=corso.id)}}">{{corso.nome}}</a>
+              </li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+

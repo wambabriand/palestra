@@ -1,0 +1,118 @@
+
+
+{% extends "base.html" %}
+{% block title %} Home {% endblock %}
+
+{%block mainbody %}
+<div  class="container-fluid mt-3">
+    <div class="row justify-content-evenly">
+        <div class="col-xl-5 col-md-6 col-12">
+            <div class="container-fluid">
+                <h4> LISTA DEI CORSI DELLA PALESTRA</h4>
+                <ul>
+                    {% for corso in listacorsi %}
+                    <li class="my-2">
+                        <a href="{{url_for('corsoById', id=corso.id)}}">{{corso.titolo | e}}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-xl-5 col-md-6 col-12">
+            <div class="container-fluid">
+                {% if corso %}
+                    <h6>NOME DEL CORSO: {{corso.titolo | e}}</h6>
+                    <p>Descrizione : {{corso.descrizione | e}}</p>
+                        <!-- se è uno che si è iscritto al corso contiene can give voto -->
+
+                    {% if corso.canEnroll %}
+                            <form method="POST" action="{{url_for('iscrizione')}}">
+                                <input hidden="true" name="idcorso" value="{{corso.id}}"></input>
+                                <button class="form-login-btn" type="submit">Iscriversi al corso</button>
+                            </form>
+                    {% endif %}
+
+                    <p>{{ message | e}}</p>
+
+                    {% if corso.media %}
+                        <p>La media delle valutazione {{ corso.media | e}} / 5 </p>
+                    {% endif %}
+
+                    {% if corso.canGiveVoto %}
+                            <form method="POST" action="{{url_for('vota')}}">
+                                <input hidden="true" name="idcorso" value="{{corso.id}}"></input>
+                                <select name="voto" id="voto">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                                <button class="form-login-btn" type="submit">nota</button>
+                            </form>
+                    {% endif %}
+
+
+                    <!-- se è il manager vede tutti gli iscritti -->
+                    {% if corso.iscritti %}
+                        <h5>Lista degli iscritti</h5>
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% if corso.iscritti |  length > 0 %}
+                                {% for iscritto in corso.iscritti %}
+                                <tr>
+                                    <td>{{iscritto.nome | e}} </td>
+                                    <td>{{iscritto.cognome | e}}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                            <tr>Non ci sono iscritti</tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+
+                        <!-- se è un utente anonimo vede -->
+                    {% if corso.votoMedia %}
+                            <p>Voto media : {{corso.votoMedia | e}}</p>
+                    {% endif %}
+
+
+                    {% if corso.commenti %}
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>NOME AUTORE</th>
+                                <th>VALUTAZIONE</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% if corso.commenti |  length > 0 %}
+                                {% for commento in corso.commenti %}
+                                <tr>
+                                    <td>{{commento.autore | e}} </td>
+                                    <td>{{commento.voto | e}}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                            <tr>Non ci sono commenti</tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

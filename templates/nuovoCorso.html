@@ -1,0 +1,26 @@
+
+
+{% extends "base.html" %}
+{% block title %} Nuovo Corso {% endblock %}
+
+{%block mainbody %}
+<div >
+    <form class="container-login" method="POST" action="{{url_for('nuovoCorso')}}">
+        <h4>Compila questo formulario per aggiungere un nuovo corso</h4>
+        <p id="message">
+            {% if result  %}
+              {{ result.message }}
+            {% endif %}
+        </p>
+        <input class="form-login" placeholder="Nome " type="text" id="titolo" name="titolo"/>
+        <input class="form-login" placeholder="Descrizione"  type="text" id="descrizione" name="descrizione"/>
+        <input class="form-login" placeholder="Nome istruttore"  type="text" id="istruttore" name="istruttore"/>
+        <input class="form-login" type="datetime-local"  id="startTime" name="startTime"/>
+        <input class="form-login" type="datetime-local" id="endTime" name="endTime"/>
+        <div class="container-btn">
+            <button class="form-login-btn" onclick="isValidoCorso(event)" type="submit">Crea</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

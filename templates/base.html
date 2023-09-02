@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+  <title>Palestra- {% block title %}{% endblock %}</title>
+  <meta charset="utf-8">
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+  <script src="{{ url_for('static', filename='javascript.js') }}"></script>
+<header id="myheader">
+    <nav class="nav">
+      <div class="container-fluid">
+        <a href="/" class="nav-item">Home</a>
+          {% if not session.email %}
+            <a href="/login" class="nav-item">Login</a>
+            <a href="/register" class="nav-item">Register</a>
+          {% else %}
+            {% if session.ruolo == "CLIENTE" %}
+              <a href="{{url_for('abbonamento')}}" class="nav-item">Abbonamento</a>
+            {% else %}
+              <a href="{{url_for('clienti')}}" class="nav-item">Clienti</a>
+              <a href="{{url_for('nuovoCorso')}}" class="nav-item">Nuovo corso</a>
+            {% endif %}
+            <a href="/logout" class="nav-item">Logout</a>
+          {% endif %}
+      </div>
+    </nav>
+  </header>
+
+   <main>
+     {%block mainbody %}{% endblock %}
+   </main>
+   <footer class="mb-0 alert alert-danger"> Prince
+   <span class="voto"></span>
+   </footer>
+</body>
+</html>

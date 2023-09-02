@@ -1,0 +1,35 @@
+
+
+{% extends "base.html" %}
+{% block title %} Home {% endblock %}
+
+{%block mainbody %}
+<div  class="container-fluid mt-3">
+    <div class="row justify-content-center">
+        <div class="col-xl-5 col-md-6 col-12">
+             <table>
+                 <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Cognome</th>
+                        <th>Abbonamento</th>
+                    </tr>
+                 </thead>
+                 <tbody>
+                    {% if clienti |  length > 0 %}
+                        {% for cliente in clienti %}
+                            <tr>
+                                <td>{{cliente.nome | e}} </td>
+                                <td>{{cliente.cognome | e}}</td>
+                                <td>{{cliente.dataDeActivazione | e}}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>Non ci sono clienti</tr>
+                    {% endif %}
+                 </tbody>
+             </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

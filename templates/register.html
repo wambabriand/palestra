@@ -1,0 +1,23 @@
+
+{% extends "base.html" %}
+{% block title %} Registrazione {% endblock %}
+
+{%block mainbody %}
+     <form class="container-login" method="POST" action="{{url_for('register')}}">
+         <p id="message" class="error">
+              {% if result %} {{result.message}} {% endif %}</p>
+        <input class="form-login"  type="text" id="cognome" name="cognome" placeholder="Cognome" required/>
+        <input class="form-login"  type="text" id="nome" name="nome" placeholder="Nome" required/>
+        <input class="form-login"  type="email" id="email" name="email" placeholder="Email" required/>
+        <select class="form-login" id="ruolo"  name="ruolo"  required>
+            <option value="">Seleziona il tipo di conto</option>
+            <option value="ADMIN">Admin</option>
+            <option value="CLIENTE">Cliente</option>
+        </select>
+        <input class="form-login"  type="password" id="password1"  name="password1" placeholder="Password" required/>
+        <input class="form-login"  type="password" id="password2"  name="password2" placeholder="Conferma Password" required/>
+        <div class="container-btn">
+            <button onclick="isValidoAccount(event)" class="form-login-btn" type="submit">Register</button>
+        </div>
+    </form>
+{% endblock %}

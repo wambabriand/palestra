@@ -1,0 +1,67 @@
+
+
+{% extends "base.html" %}
+{% block title %} Home {% endblock %}
+
+{%block mainbody %}
+<div >
+    <div class="index-cantainer">
+        <h4> Lista dei corsi della nostra palestra</h4>
+        <ul>
+            {% for corso in listacorsi %}
+            <li>
+                <a href="{{url_for('indexCorso', id=corso.id)}}">{{corso.nome}}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="index-cantainer">
+        {% if corso %}
+            <h5>Nome del corso: {{corso.nome | e}}</h5>
+            <p>Descrizione : {{corso.descrizione | e}}</p>
+                <!-- se è uno che si è iscritto al corso contiene can give voto -->
+            {% if corso.canGiveVoto %}
+                <form method="POST" action="/abbonamento">
+                    <button class="form-login-btn" type="submit">Desattiva</button>
+                </form>
+            <!-- se è il manager vede tutti gli iscritti -->
+            {% else if corso.iscritti %}
+                {% for iscritto in corso.iscritti %}
+                    <tr>
+                        <td>{{iscritto.nome | e}} </td>
+                        <td>{{iscritto.nome | e}}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+
+            <!-- se è un utente anonimo vede -->
+            {% if corso.votoMedia %}
+                <p>Voto media : {{corso.votoMedia | e}}</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome Autore</th>
+                            <th>Commento</th>
+                            <th>Voto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% if corso.commenti %}
+                        {% for commento in corso.commenti %}
+                        <tr>
+                            <td>{{commento.autore | e}} </td>
+                            <td>{{commento.commento | e}}</td>
+                            <td>{{commento.voto | e}}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>Non ci sono commenti</tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}
