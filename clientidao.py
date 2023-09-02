@@ -15,17 +15,16 @@ def getClienti ():
 
 def deAbbonna (iduser):
     try:
+
         if isAbbonnatoAttivo(iduser):
-            conn = sqlite3.connect('db/palestra.db')
+            conn = sqlite3.connect('palestra.db')
             cursor = conn.cursor()
             sql = 'UPDATE user SET dataDeactivazione = ? WHERE id = ?'
 
             x = datetime.datetime.now()
             date = x.strftime("%Y-%m-%d")
 
-            print(date)
-            print(isAbbonnatoAttivo(iduser))
-      #      cursor.execute(sql, (date, iduser))
+            cursor.execute(sql, (date, iduser))
             conn.commit()
             cursor.close()
             conn.close()
@@ -44,27 +43,30 @@ def isAbbonnatoAttivo(iduser):
         cursor.close()
         conn.close()
         if data[0]:
-            return True
-        return False
+            return False
+        return True
     except Exception as e:
         print('ERROR', str(e))
     return False
 
 
 def getAbbonamentoInf(iduser):
+    info = {}
     try:
         conn = sqlite3.connect('palestra.db')
         cursor = conn.cursor()
         sql = 'SELECT dataDeactivazione FROM user WHERE id = ?'
         cursor.execute(sql, (iduser,))
         data = cursor.fetchone()
-        conn.commit()
         cursor.close()
         conn.close()
-        print(data)
         if data[0]:
-            return {"attivo": False, "desattivatedDate":data[0], "message": "Il tuo abbonamento è disattivato con successo"}
-        return {"attivo": True}
+            info["attivo"] = False
+            info["desattivatedDate"] = data[0]
+            info["message"] = "Il tuo abbonamento è disattivato con successo"
+        else:
+            info["attivo"] = True
     except Exception as e:
         print('ERROR', str(e))
-    return False
+        info["attivo"] = False
+    return info

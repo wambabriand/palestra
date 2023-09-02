@@ -90,10 +90,10 @@ def abbonamento():
         info = clientidao.getAbbonamentoInf(userId)
         return render_template('abbonamento.html', abbonamento=info)
     else:
-        print('je suis icic')
         clientidao.deAbbonna(userId)
         info = clientidao.getAbbonamentoInf(userId)
         return render_template('abbonamento.html', abbonamento=info)
+
 
 @app.route("/user")
 def userpage():
