@@ -99,6 +99,12 @@ function getValutatione (voto){
     }
 }
 
+function search(event, corsi){
+    console.log(corsi)
+    let value = document.getElementById("search").value;
+
+}
+
 function isValidoCorso (event){
     const corso = {
         titolo : document.getElementById("titolo").value,
