@@ -117,6 +117,8 @@ def getCorsoById(id, idUser, ruolo):
         media = getMediaVoto(id, idUser)
         data['media'] = media
         res['corso'] = data
+        commenti = getVoti(id)
+        data['commenti'] = commenti
 
         if ruolo == "CLIENTE":
             userCorso = getUserCorso(idUser, id)
@@ -274,3 +276,27 @@ def getMediaVoto( idCorso, idUser=None):
         print('ERROR', str(e))
         cursor.close()
         conn.close()
+
+
+
+def getVoti( idCorso):
+    try:
+        sql = ("""  SELECT u.nome, u.cognome, ci.voto FROM  corso_iscritto ci , user u
+                    WHERE ci.id_corso = ? AND u.id = ci.id_user AND ci.voto IS NOT NULL
+             """)
+        conn = sqlite3.connect('palestra.db')
+        cursor = conn.cursor()
+        cursor.execute(sql, (idCorso,))
+        dati = []
+        for data in cursor.fetchall():
+            dati.append({'nome': data[0], 'cognome': data[1],'voto': data[2]})
+
+        cursor.close()
+        conn.close()
+        return dati
+    except Exception as e:
+        print('ERROR', str(e))
+        cursor.close()
+        conn.close()
+        return []
+

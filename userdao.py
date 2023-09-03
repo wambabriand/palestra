@@ -89,7 +89,7 @@ def doLogin(req):
         conn = sqlite3.connect('palestra.db')
         cursor = conn.cursor()
         sql = (""" 
-            SELECT id, email, password, nome, cognome, ruolo
+            SELECT id, email, password, nome, cognome, ruolo, password
             FROM user
             WHERE email = (?) 
         """)
@@ -113,6 +113,7 @@ def doLogin(req):
         res['ruolo'] = data[5]
         res['nome'] = data[3]
         res['cognome'] = data[4]
+        res['password'] = data[6]
     except Exception as e:
         res['result'] = False
         res['message'] = str(e)
@@ -129,20 +130,20 @@ def getAccountByEmail(email):
     sql = (""" 
                 SELECT id, email, password, nome, cognome, ruolo
                 FROM user
-                WHERE email = (?) 
+                WHERE email = (?)  OR id = (?)
             """)
-    cursor.execute(sql, (email,))
+    cursor.execute(sql, (email,email))
     data = cursor.fetchone()
 
     if data == None:
         return None
 
-    user['id0'] = data[0]
-    user['id'] = data[1]
+    user['id'] = data[0]
     user['email'] = data[1]
     user['password'] = data[2]
     user['ruolo'] = data[5]
     user['nome'] = data[3]
     user['cognome'] = data[4]
+
     return user
 

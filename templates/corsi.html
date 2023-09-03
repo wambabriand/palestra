@@ -10,17 +10,19 @@
             <div class="container-fluid">
                 <h4> LISTA DEI CORSI DELLA PALESTRA</h4>
                 <section>
-
-                <input type="text" id="search"></input>
-                <button type="button" onclick="search(event, {{listacorsi}})">Cerca</button>
+                    <input type="text" id="search"></input>
+                    <button type="button" onclick="search(event, {{listacorsi}})">Cerca</button>
+                    <button type="button" onclick="resetSearch(event, {{listacorsi}})">Reset</button>
                 </section>
-                <ul id="corsi">
-                    {% for corso in listacorsi %}
-                    <li class="my-2">
-                        <a href="{{url_for('corsoById', id=corso.id)}}">{{corso.titolo | e}}</a>
-                    </li>
-                    {% endfor %}
-                </ul>
+                <section id="corsi">
+                    <ul id="corsiul">
+                        {% for corso in listacorsi %}
+                        <li class="my-2">
+                            <a href="{{url_for('corsoById', id=corso.id)}}">{{corso.titolo | e}}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </section>
             </div>
         </div>
 
@@ -107,7 +109,7 @@
                             {% if corso.commenti |  length > 0 %}
                                 {% for commento in corso.commenti %}
                                 <tr>
-                                    <td>{{commento.autore | e}} </td>
+                                    <td>{{commento.nome | e}} {{commento.cognome | e}} </td>
                                     <td>{{commento.voto | e}}</td>
                                 </tr>
                                 {% endfor %}

@@ -6,12 +6,13 @@
 from flask import Flask, render_template, request, url_for, redirect, session
 from flask_session import Session
 
-from flask_login import LoginManager, logout_user, login_required
+from flask_login import LoginManager, login_user,logout_user,current_user, login_required
 
 import userdao
 import corsodao
 import clientidao
 import initdb
+from models import User
 
 initdb.initDb();
 
@@ -30,7 +31,7 @@ login_manager.init_app(app)
 # ok
 @app.route("/iscrizione", methods=["POST"])
 def iscrizione():
-    idUser = session['id']
+    idUser = current_user.id
     idCorso = request.form['idcorso']
     corsodao.iscriverti(idCorso, idUser)
     return redirect(url_for('corsoById', id=idCorso))
@@ -42,7 +43,7 @@ def iscrizione():
 def vota():
     vuoto = request.form['voto']
     idCorso = request.form['idcorso']
-    corsodao.vota(session['id'], idCorso, vuoto)
+    corsodao.vota(current_user.id, idCorso, vuoto)
     return redirect(url_for('corsoById', id=idCorso))
 
 
@@ -50,60 +51,64 @@ def vota():
 @login_required
 def clienti():
     users = clientidao.getClienti()
-    return render_template('clienti.html', clienti=users)
+    return render_template('clienti.html', session=getSession(), clienti=users)
 
 @app.route("/")
 def index():
-    role = session['ruolo']
+    role = None
+    if current_user.is_authenticated and current_user.ruolo:
+        role = current_user.ruolo
     listacorsi = corsodao.getCorsi(role)
-    return render_template('corsi.html', session=session, listacorsi=listacorsi)
+    return render_template('corsi.html', session=getSession(), listacorsi=listacorsi)
 
 
+def getSession () :
+    if current_user.is_authenticated:
+        return userdao.getAccountByEmail(current_user.id)
+    return None
 
 @app.route("/corsi/<int:id>")
 def corsoById(id,message=""):
-
-    res = corsodao.getCorsoById(id, session['id'],session['ruolo'])
-    role = session['ruolo']
+    role = None
+    idUser = None
+    if current_user.is_authenticated:
+        idUser = current_user.id
+        role = current_user.ruolo
     listacorsi = corsodao.getCorsi(role)
-    # anonimo
-    if not session['ruolo']:
-        return render_template('corsi.html', listacorsi=listacorsi, corso=res['corso'])
+    res = corsodao.getCorsoById(id, idUser, role)
+    if not current_user.is_authenticated:
+        return render_template('corsi.html', session=getSession(), listacorsi=listacorsi, corso=res['corso'])
     # user logato
-    return render_template('corsi.html', session=session, listacorsi=listacorsi, corso=res['corso'])
+    return render_template('corsi.html', session=getSession(), listacorsi=listacorsi, corso=res['corso'])
 
 # ok
 @app.route("/nuovo-corso", methods=['GET', 'POST'])
 @login_required
 def nuovoCorso():
     if request.method == "GET":
-        return render_template('nuovoCorso.html')
+        return render_template('nuovoCorso.html',session=getSession())
     else:
         res = corsodao.creaNuovoCorso(request)
-        return render_template('nuovoCorso.html', result=res)
+        return render_template('nuovoCorso.html', session=getSession(), result=res)
 
 
 @app.route("/abbonamento", methods=['GET', 'POST'])
 @login_required
 def abbonamento():
-    userId = session['id']
+    userId = current_user.id
     if request.method == "GET":
         info = clientidao.getAbbonamentoInf(userId)
-        return render_template('abbonamento.html', abbonamento=info)
+        return render_template('abbonamento.html', session=getSession(), abbonamento=info)
     else:
         clientidao.deAbbonna(userId)
         info = clientidao.getAbbonamentoInf(userId)
-        return render_template('abbonamento.html', abbonamento=info)
+        return render_template('abbonamento.html',session=getSession(), abbonamento=info)
 
 
 
 @app.route("/logout", methods= ['GET', 'POST'])
+@login_required
 def logout():
-    session['id'] = None
-    session['cognome'] = None
-    session['email'] = None
-    session['ruolo'] = None
-    session['nome'] = None
     logout_user()
     return redirect(url_for('index'))
 
@@ -117,11 +122,9 @@ def login():
        if not res['result']:
            return render_template('login.html', message=res['message'])
        else:
-           session['id'] = res['id']
-           session['email'] = res['email']
-           session['ruolo'] = res['ruolo']
-           session['nome'] = res['nome']
-           session['cognome'] = res['cognome']
+           user = User(id=res['id'], email=res['email'], password=res['password'],
+                       ruolo=res['ruolo'], nome=res['nome'], cognome=res['cognome'])
+           login_user(user, True)
            return redirect(url_for('index'))
 
 
@@ -145,13 +148,16 @@ def register():
         return render_template('register.html')
 
 @login_manager.user_loader
-def load_user():
-    utente1 = userdao.getAccountByEmail(request.form['email'])
-    utente2 = userdao.getAccountByEmail(request.form['id'])
+def load_user(userId):
+    utente1 = userdao.getAccountByEmail(userId)
+    utente2 = userdao.getAccountByEmail(userId)
     if utente1:
-        return utente1
-    return utente2
-
+        return User(id=utente1['id'], email=utente1['email'], password=utente1['password'],
+                       ruolo=utente1['ruolo'], nome=utente1['nome'], cognome=utente1['cognome'])
+    if utente2:
+        return User(id=utente2['id'], email=utente2['email'], password=utente2['password'],
+                       ruolo=utente2['ruolo'], nome=utente2['nome'], cognome=utente2['cognome'])
+    return None
 
 if __name__ == '__main__':
     app.run(debug=True)

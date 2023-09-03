@@ -98,11 +98,40 @@ function getValutatione (voto){
        return
     }
 }
+function createLiCorso (corso){
+    let tmpli = document.createElement('li');
+    let newa = document.createElement('a');
+    tmpli.setAttribute('class','my-2');
+    tmpli.appendChild(newa);
+    let url = '/corsi/' + corso.id;
+    tmpli.setAttribute('href',url);
+    tmpli.innerHTML = corso.titolo;
+    return tmpli;
+}
 
 function search(event, corsi){
-    console.log(corsi)
-    let value = document.getElementById("search").value;
+    let value = document.getElementById("search").value || "";
+    let session = document.getElementById("corsi");
 
+    let oldul = document.getElementById("corsiul");
+    oldul.remove();
+
+    let newul = document.createElement('ul');
+    session.appendChild(newul);
+    newul.setAttribute('id','corsiul');
+
+    corsi.forEach(corso => {
+        if(corso.istruttore.includes(value)){
+            let newli = createLiCorso(corso)
+            newul.appendChild(newli)
+        }
+    })
+}
+
+
+function resetSearch(event, corsi){
+    document.getElementById("search").value = ""
+    search(event, corsi)
 }
 
 function isValidoCorso (event){
