@@ -1,5 +1,5 @@
 import  sqlite3
-
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def validText(text):
     if text:
@@ -43,7 +43,8 @@ def registerUser(req):
         cursor = conn.cursor()
         sql = (""" INSERT INTO user(id,nome,cognome,email,ruolo,password) VALUES (?,?,?,?,?,?) """)
         cursor.execute(sql, (id,req.form['nome'], req.form['cognome'],
-                             req.form['email'], req.form['ruolo'], req.form['password1']))
+                             req.form['email'], req.form['ruolo'],
+                             generate_password_hash(req.form['password1'], method='sha256') ))
 
         conn.commit()
         res['result'] = True
@@ -95,17 +96,13 @@ def doLogin(req):
         email = req.form['email']
         cursor.execute(sql, (email,))
         data = cursor.fetchone()
-        print(data[0])
-        print(data[1])
-        print(data[2])
-        print(data[3])
-        print(req.form['password'])
+
+        #print( check_password_hash(data[2], req.form['password']) )
         if data == None:
             res['result'] = False
             res['message'] = "Email non esiste"
             return res
-        if data[2] != req.form['password']:
-            print("222255")
+        if not check_password_hash(data[2], req.form['password']):
             res['result'] = False
             res['message'] = "Password sbagliata"
             return res
@@ -125,12 +122,27 @@ def doLogin(req):
 
 
 
-def getAccount(email):
-    return {
-        'email': email,
-        'ruolo': 'CLIENTE',
-        'nome': 'Mario',
-        'cognome' :'Rossi'
-    }
+def getAccountByEmail(email):
+    user = {}
+    conn = sqlite3.connect('palestra.db')
+    cursor = conn.cursor()
+    sql = (""" 
+                SELECT id, email, password, nome, cognome, ruolo
+                FROM user
+                WHERE email = (?) 
+            """)
+    cursor.execute(sql, (email,))
+    data = cursor.fetchone()
 
+    if data == None:
+        return None
+
+    user['id0'] = data[0]
+    user['id'] = data[1]
+    user['email'] = data[1]
+    user['password'] = data[2]
+    user['ruolo'] = data[5]
+    user['nome'] = data[3]
+    user['cognome'] = data[4]
+    return user
 

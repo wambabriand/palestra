@@ -3,11 +3,18 @@ import datetime
 
 def getClienti ():
     # check if user have role
-    conn = sqlite3.connect('db/palestra.db')
+    conn = sqlite3.connect('palestra.db')
     cursor = conn.cursor()
-    sql = 'SELECT nome, cognome FROM user WHERE ruolo = "CLIENTI"'
+    sql = 'SELECT nome, cognome, dataDeactivazione FROM user WHERE ruolo = "CLIENTE"'
     cursor.execute(sql)
-    users = cursor.fetchall()
+
+    users = []
+    for data in cursor.fetchall():
+        attivo = True
+        if data[2]:
+            attivo = False
+        users.append({'nome': data[0], 'cognome': data[1], 'attivo': "attivo"})
+
     cursor.close()
     conn.close()
     return users

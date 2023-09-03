@@ -14,6 +14,13 @@
   width : 50%;
 }
 
+.abbanaAttivo{
+    background-color: green;
+    border-radius: 50%;
+    width : 20px;
+    height : 20px;
+}
+
 .error{
 color : red;
 }

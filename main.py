@@ -5,8 +5,10 @@
 
 from flask import Flask, render_template, request, url_for, redirect, session
 from flask_session import Session
+
+from flask_login import LoginManager, logout_user, login_required
+
 import userdao
-import loginfile
 import corsodao
 import clientidao
 import initdb
@@ -19,13 +21,10 @@ app.config['SESSION_TYPE']= 'filesystem'
 app.config['SESSION_PERMANENT']= False
 Session(app)
 
-listacorsi = [{"nome": "Corso 1", "id": 1, "descrizione": "descrizione qundaaaa", "votoMedia": 4,
-    "commenti" : [
-        {"autore":"Mario Rossi", "commento":"il commento perfetto","voto": 5},
-        {"autore":"Mario Rossi", "commento":"il commento perfetto","voto": 5},
-        {"autore":"Mario Rossi", "commento":"il commento perfetto","voto": 5},
-    ]}, {"nome": "Corso 2", "id": 2}, {"nome": "Corso 3", "id": 3}]
-listauser = []
+app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.init_app(app)
 
 
 # ok
@@ -39,6 +38,7 @@ def iscrizione():
 
 # vota
 @app.route("/vota", methods=["POST"])
+@login_required
 def vota():
     vuoto = request.form['voto']
     idCorso = request.form['idcorso']
@@ -47,11 +47,10 @@ def vota():
 
 
 @app.route("/clienti")
+@login_required
 def clienti():
-    users = clientidao.getClienti();
-
-    print(users)
-    return render_template('clienti.html', clienti=listacorsi)
+    users = clientidao.getClienti()
+    return render_template('clienti.html', clienti=users)
 
 @app.route("/")
 def index():
@@ -75,6 +74,7 @@ def corsoById(id,message=""):
 
 # ok
 @app.route("/nuovo-corso", methods=['GET', 'POST'])
+@login_required
 def nuovoCorso():
     if request.method == "GET":
         return render_template('nuovoCorso.html')
@@ -84,6 +84,7 @@ def nuovoCorso():
 
 
 @app.route("/abbonamento", methods=['GET', 'POST'])
+@login_required
 def abbonamento():
     userId = session['id']
     if request.method == "GET":
@@ -95,49 +96,6 @@ def abbonamento():
         return render_template('abbonamento.html', abbonamento=info)
 
 
-@app.route("/user")
-def userpage():
-    usercorsi = []
-    for corso in listacorsi:
-        if corso['id'] == 1:
-            corso['stato'] = "NUOVO"
-        if corso['id'] == 2:
-            corso['stato'] = "PRENOTATO"
-        if corso['id'] == 3:
-            corso['stato'] = "PASSATO"
-        if corso['id'] == 4:
-            corso['stato'] = "NOTATO"
-        usercorsi.append(corso)
-    print(session)
-    return render_template('user.html', corsi = usercorsi)
-
-
-def isValidSession ():
-    if not session['email']:
-        return False
-    return True
-@app.route("/personale")
-def personalepage():
-    if not isValidSession():
-        return redirect(url_for("login"))
-    # devono venire dal data base
-    return render_template('personale.html', listacorsi=listacorsi)
-@app.route("/personale/corsi")
-def personaleCorsi():
-    # devono venire dal data base
-    return render_template('personale.html', listacorsi=listacorsi)
-
-
-
-@app.route("/corsi", methods=['GET', 'POST'])
-def corsi():
-
-    print(session)
-        # devono venire dal data base
-    if request.method == "POST":
-        return redirect(url_for('personalepage'))
-    else:
-        return render_template('corsi.html', listacorsi=listacorsi)
 
 @app.route("/logout", methods= ['GET', 'POST'])
 def logout():
@@ -146,6 +104,7 @@ def logout():
     session['email'] = None
     session['ruolo'] = None
     session['nome'] = None
+    logout_user()
     return redirect(url_for('index'))
 
 @app.route("/login", methods= ['GET', 'POST'])
@@ -163,10 +122,13 @@ def login():
            session['ruolo'] = res['ruolo']
            session['nome'] = res['nome']
            session['cognome'] = res['cognome']
-           return redirect(url_for('corsi'))
+           return redirect(url_for('index'))
+
+
 
 @app.route("/test")
-def totototo():
+@login_required
+def apiperprova():
     listacorsi = corsodao.getCorsoById(1,None)
     print(listacorsi)
     return "Helloo"
@@ -181,6 +143,15 @@ def register():
             return render_template('register.html', result=result)
     else:
         return render_template('register.html')
+
+@login_manager.user_loader
+def load_user():
+    utente1 = userdao.getAccountByEmail(request.form['email'])
+    utente2 = userdao.getAccountByEmail(request.form['id'])
+    if utente1:
+        return utente1
+    return utente2
+
 
 if __name__ == '__main__':
     app.run(debug=True)

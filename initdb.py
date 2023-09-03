@@ -2,7 +2,7 @@ import  sqlite3
 
 def initDb ():
 
-    print("Debut initialisation")
+    print("Inizializza DB  creando tabelle se neccesario")
     conn = sqlite3.connect('palestra.db')
     cursor = conn.cursor()
     sql = ("""CREATE TABLE IF NOT EXISTS user 
@@ -42,6 +42,5 @@ def initDb ():
 
     cursor.close()
     conn.close()
-
-    print("Debut initialisation")
+    print("Fine delle inizializzazione")
     return

@@ -83,19 +83,6 @@ def getCorsi(role):
                 SELECT id,titolo,descrizione,istruttore,startTime,endTime
                 FROM corso
             """)
-
-        if role == "CLIENTE":
-            sql = ("""
-                    SELECT id,titolo,descrizione,istruttore,startTime,endTime
-                    FROM corso
-                    """)
-
-        if role == "ADMIN":
-            sql = (""" 
-                    SELECT id,titolo,descrizione,istruttore,startTime,endTime
-                    FROM corso
-                    """)
-
         conn = sqlite3.connect('palestra.db')
         cursor = conn.cursor()
         cursor.execute(sql)
@@ -135,8 +122,6 @@ def getCorsoById(id, idUser, ruolo):
             userCorso = getUserCorso(idUser, id)
             if userCorso['result']:
                 if not userCorso['voto']:
-                    print('con give voto')
-                    print(userCorso['voto'])
                     data['canGiveVoto'] = True
                 else:
                     data['canGiveVoto'] = False
@@ -149,9 +134,8 @@ def getCorsoById(id, idUser, ruolo):
 
         if ruolo == "ADMIN":
             iscritti = getIscritti(id)
-            res['iscritti'] = iscritti
+            data['iscritti'] = iscritti
             res['result'] = True
-            res['data'] = iscritti
             return res
         res['result'] = True
     except Exception as e:
